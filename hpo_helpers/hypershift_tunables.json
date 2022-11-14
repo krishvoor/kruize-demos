@@ -1,0 +1,40 @@
+{
+    "experiment_name": "hypershift-<SERVICE_NAME>-demo",
+    "experiment_id": "<SERVICE_NAME>-123",
+    "total_trials": 5,
+    "parallel_trials":1,
+    "objective_function": "1000*(125*THROUGHPUT_RATE_3m)/(150*RESPONSE_TIME_RATE_3m)/(25*MAX_RESPONSE_TIME/1000)",
+    "value_type": "double",
+    "hpo_algo_impl": "optuna_tpe",
+    "direction": "maximize",
+    "function_variables": [
+        {
+            "name": "THROUGHPUT_RATE_3m",
+            "value_type": "double"
+        },
+        {
+            "name": "RESPONSE_TIME_RATE_3m",
+            "value_type": "double"
+        },
+        {
+            "name": "MAX_RESPONSE_TIME",
+            "value_type": "double"
+        }
+    ],
+    "tunables": [
+        {
+            "name": "memoryRequest",
+            "value_type": "double",
+            "upper_bound": 4096,
+            "lower_bound": 270,
+            "step": 1
+        },
+        {
+            "name": "cpuRequest",
+            "value_type": "double",
+            "upper_bound": 4.0,
+            "lower_bound": 1.0,
+            "step": 0.1
+        }
+    ]
+}

@@ -15,8 +15,10 @@
 # limitations under the License.
 #
 
-# Default docker image repos
+# Default Variables
 HPO_DOCKER_REPO="docker.io/kruize/hpo"
+REPO_NAME="krishvoor"
+SEARCHSPACE_FILE="hypershift_tunables.json"
 
 # Default cluster
 CLUSTER_TYPE="native"
@@ -31,7 +33,7 @@ function usage() {
 	echo "Usage: $0 [-s|-t] [-o hpo-image] [-r] [-c cluster-type] [-d]"
 	echo "s = start (default), t = terminate"
 	echo "r = restart hpo only"
-	echo "c = supports native and docker cluster-type to start HPO service"
+	echo "c = supports native, docker & cluster-type to start HPO service"
 	echo "d = duration of benchmark warmup/measurement cycles"
 	exit 1
 }
@@ -72,7 +74,7 @@ function prereq_check() {
         check_err "ERROR: minikube not installed. Required for running benchmark. Check if all other dependencies (php,java11,git,wget,curl,zip,bc,jq) are installed."
         kubectl get pods >/dev/null 2>/dev/null
         check_err "ERROR: minikube not running. Required for running benchmark"
-	## Check if prometheus is running for valid benchmark results.
+		## Check if prometheus is running for valid benchmark results.
         prometheus_pod_running=$(kubectl get pods --all-namespaces | grep "prometheus-k8s-0")
         if [ "${prometheus_pod_running}" == "" ]; then
                 err_exit "Install prometheus for valid results from benchmark."
@@ -121,9 +123,9 @@ function clone_repos() {
 	fi
 
 	if [ ! -d benchmarks ]; then
-		git clone git@github.com:kruize/benchmarks.git 2>/dev/null
+		git clone git@github.com:${REPO_NAME}/benchmarks.git 2>/dev/null
 		if [ $? -ne 0 ]; then
-			git clone https://github.com/kruize/benchmarks.git 2>/dev/null
+			git clone https://github.com/${REPO_NAME}/benchmarks.git 2>/dev/null
 		fi
 		check_err "ERROR: git clone of kruize/benchmarks failed."
 	fi
@@ -137,7 +139,7 @@ function clone_repos() {
 ###########################################
 function delete_repos() {
 	echo "Delete hpo and benchmarks git repos"
-	rm -rf hpo benchmarks
+	rm -rf hpo benchmarks || true
 }
 
 ###########################################
@@ -172,6 +174,13 @@ function hpo_install() {
 			echo
 			./deploy_hpo.sh -c ${CLUSTER_TYPE} &
 			check_err "ERROR: HPO failed to start, exiting"
+		fi
+		if [[ ${CLUSTER_TYPE} == "openshift" ]]; then
+			echo
+			echo "Starting hpo with  ./deploy_hpo.sh -c ${CLUSTER_TYPE}"
+			echo
+			./deploy_hpo.sh -c ${CLUSTER_TYPE} &
+			check_err "ERROR: HPO failed to start, exiting"
 		else
 			echo
 			echo "Starting hpo with  ./deploy_hpo.sh -c ${CLUSTER_TYPE} -o ${HPO_DOCKER_IMAGE}"
@@ -195,7 +204,7 @@ function hpo_install() {
 ## Currently, it uses TechEmpower benchmark running in minikube for the demo.
 function hpo_experiments() {
 
-	SEARCHSPACE_JSON="hpo_helpers/tfb_qrh_search_space.json"
+	SEARCHSPACE_JSON="hpo_helpers/${SEARCHSPACE_FILE}"
 	URL="http://localhost:8085"
 	exp_json=$(cat ${SEARCHSPACE_JSON})
 	if [[ ${exp_json} == "" ]]; then
@@ -315,7 +324,7 @@ function hpo_start() {
 function hpo_terminate() {
 	echo
 	echo "#######################################"
-	echo "#       HPO Demo Terminate       #"
+	echo "#       	HPO Demo Terminate       	#"
 	echo "#######################################"
 	echo
 	pushd hpo >/dev/null
