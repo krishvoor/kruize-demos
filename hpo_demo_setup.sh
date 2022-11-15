@@ -123,9 +123,9 @@ function clone_repos() {
 	fi
 
 	if [ ! -d benchmarks ]; then
-		git clone git@github.com:${REPO_NAME}/benchmarks.git 2>/dev/null
+		git clone git@github.com:${REPO_NAME}/benchmarks.git -b hyper-scale-demos 2>/dev/null
 		if [ $? -ne 0 ]; then
-			git clone https://github.com/${REPO_NAME}/benchmarks.git 2>/dev/null
+			git clone https://github.com/${REPO_NAME}/benchmarks.git -b hyper-scale-demos 2>/dev/null
 		fi
 		check_err "ERROR: git clone of kruize/benchmarks failed."
 	fi
