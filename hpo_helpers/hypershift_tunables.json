@@ -3,7 +3,7 @@
     "experiment_id": "kube-apiserver-123",
     "total_trials": 5,
     "parallel_trials":1,
-    "objective_function": "KUBE_APISERVER_RESPONSE+P99_LATENCY",
+    "objective_function": "KUBE_APISERVER_RESPONSE+P99_POD_LATENCY",
     "value_type": "double",
     "hpo_algo_impl": "optuna_tpe",
     "direction": "minimize",
@@ -13,7 +13,7 @@
             "value_type": "double"
         },
         {
-            "name": "P99_LATENCY",
+            "name": "P99_POD_LATENCY",
             "value_type": "double"
         }
     ],
