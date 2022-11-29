@@ -26,7 +26,7 @@
 HPO_CONFIG=$1
 SEARCHSPACE_JSON=$2
 TRIAL=$3
-DURATION=$4
+#DURATION=$4
 PY_CMD="python3"
 LOGFILE="${PWD}/hpo.log"
 BENCHMARK_NAME="hyper-scale"
@@ -34,75 +34,20 @@ BENCHMARK_LOGFILE="${PWD}/benchmark.log"
 
 cpu_request=$(${PY_CMD} -c "import hpo_helpers.utils; hpo_helpers.utils.get_tunablevalue(\"hpo_config.json\", \"cpuRequest\")")
 memory_request=$(${PY_CMD} -c "import hpo_helpers.utils; hpo_helpers.utils.get_tunablevalue(\"hpo_config.json\", \"memoryRequest\")")
-envoptions=$(${PY_CMD} -c "import hpo_helpers.getenvoptions; hpo_helpers.getenvoptions.get_envoptions(\"hpo_config.json\")")
 
-if [[ ${BENCHMARK_NAME} == "techempower" ]]; then
-
-	## HEADER of techempower benchmark output.
-	# headerlist = {'INSTANCES','THROUGHPUT_RATE_3m','RESPONSE_TIME_RATE_3m','MAX_RESPONSE_TIME','RESPONSE_TIME_50p','RESPONSE_TIME_95p','RESPONSE_TIME_97p','RESPONSE_TIME_99p','RESPONSE_TIME_99.9p','RESPONSE_TIME_99.99p','RESPONSE_TIME_99.999p','RESPONSE_TIME_100p','CPU_USAGE','MEM_USAGE','CPU_MIN','CPU_MAX','MEM_MIN','MEM_MAX','THRPT_PROM_CI','RSPTIME_PROM_CI','THROUGHPUT_WRK','RESPONSETIME_WRK','RESPONSETIME_MAX_WRK','RESPONSETIME_STDEV_WRK','WEB_ERRORS','THRPT_WRK_CI','RSPTIME_WRK_CI','DEPLOYMENT_NAME','NAMESPACE','IMAGE_NAME','CONTAINER_NAME'}
-
-	OBJFUNC_VARIABLES="THROUGHPUT_RATE_3m,RESPONSE_TIME_RATE_3m,MAX_RESPONSE_TIME"
-	CLUSTER_TYPE="minikube"
-	BENCHMARK_SERVER="localhost"
-	RESULTS_DIR="results"
-	TFB_IMAGE="kruize/tfb-qrh:1.13.2.F_mm_p"
-	DB_TYPE="docker"
-	WARMUPS=1
-	MEASURES=3
-	SERVER_INSTANCES=1
-	ITERATIONS=1
-	NAMESPACE="default"
-	THREADS="40"
-	CONNECTIONS="512"
-
-	./benchmarks/techempower/scripts/perf/tfb-run.sh --clustertype=${CLUSTER_TYPE} -s ${BENCHMARK_SERVER} -e ${RESULTS_DIR} -g ${TFB_IMAGE} --dbtype=${DB_TYPE} --dbhost=${DB_HOST} -r -d ${DURATION} -w ${WARMUPS} -m ${MEASURES} -i ${SERVER_INSTANCES} --iter=${ITERATIONS} -n ${NAMESPACE} -t ${THREADS} --connection=${CONNECTIONS} --cpureq=${cpu_request} --memreq=${memory_request}M --cpulim=${cpu_request} --memlim=${memory_request}M --envoptions="${envoptions}" >& ${BENCHMARK_LOGFILE}
-
-	RES_DIR=`ls -td -- ./benchmarks/techempower/results/*/ | head -n1 `
-	if [[ -f "${RES_DIR}/output.csv" ]]; then
-		## Copy the output.csv into current directory
-		cp -r ${RES_DIR}/output.csv .
-		cat ${RES_DIR}/../../setup.log >> ${BENCHMARK_LOGFILE}
-		## Format csv file
-		sed -i 's/[[:blank:]]//g' output.csv
-		## Calculate objective function result value
-		objfunc_result=`${PY_CMD} -c "import hpo_helpers.getobjfuncresult; hpo_helpers.getobjfuncresult.calcobj(\"${SEARCHSPACE_JSON}\", \"output.csv\", \"${OBJFUNC_VARIABLES}\")"`
-	
-		if [[ ${objfunc_result} != "-1" ]]; then
-			benchmark_status="success"
-		else
-			benchmark_status="failure"
-			echo "Error calculating the objective function result value" >> ${LOGFILE}
-		fi
-	else
-		benchmark_status="failure"
-	fi
-
-	if [[ ${benchmark_status} == "failure" ]];then
-		objfunc_result=0
-	fi
-	### Add the HPO config and output data from benchmark of all trials into single csv
-        ${PY_CMD} -c "import hpo_helpers.utils; hpo_helpers.utils.hpoconfig2csv(\"hpo_config.json\",\"output.csv\",\"experiment-output.csv\",\"${TRIAL}\")"
-
-	## Remove the benchmark output file which is copied.
-	rm -rf output.csv
-
-fi
 if [[ ${BENCHMARK_NAME} == "hyper-scale" ]]; then
 
 	## HEADER of techempower benchmark output.
-	# headerlist = {'INSTANCES','THROUGHPUT_RATE_3m','RESPONSE_TIME_RATE_3m','MAX_RESPONSE_TIME','RESPONSE_TIME_50p','RESPONSE_TIME_95p','RESPONSE_TIME_97p','RESPONSE_TIME_99p','RESPONSE_TIME_99.9p','RESPONSE_TIME_99.99p','RESPONSE_TIME_99.999p','RESPONSE_TIME_100p','CPU_USAGE','MEM_USAGE','CPU_MIN','CPU_MAX','MEM_MIN','MEM_MAX','THRPT_PROM_CI','RSPTIME_PROM_CI','THROUGHPUT_WRK','RESPONSETIME_WRK','RESPONSETIME_MAX_WRK','RESPONSETIME_STDEV_WRK','WEB_ERRORS','THRPT_WRK_CI','RSPTIME_WRK_CI','DEPLOYMENT_NAME','NAMESPACE','IMAGE_NAME','CONTAINER_NAME'}
+	# headerlist = {'CPU_USAGE','MEM_USAGE','DEPLOYMENT_NAME','NAMESPACE','IMAGE_NAME','CONTAINER_NAME'}
 
-	OBJFUNC_VARIABLES="THROUGHPUT_RATE_3m,RESPONSE_TIME_RATE_3m,MAX_RESPONSE_TIME"
+	OBJFUNC_VARIABLES="KUBE_APISERVER_RESPONSE"
 	CLUSTER_TYPE="openshift"
 	BENCHMARK_SERVER="localhost"
 	RESULTS_DIR="results"
-	SERVER_INSTANCES=1
 	ITERATIONS=1
 	NAMESPACE="default"
-	THREADS="40"
-	CONNECTIONS="512"
 
-	./benchmarks/hyper-scale/scripts/perf/start-run.sh --clustertype=${CLUSTER_TYPE} -s ${BENCHMARK_SERVER} -e ${RESULTS_DIR} -r -d ${DURATION} -i ${SERVER_INSTANCES} -n ${NAMESPACE} --connection=${CONNECTIONS} --cpureq=${cpu_request} --memreq=${memory_request}M --cpulim=${cpu_request} --memlim=${memory_request}M --envoptions="${envoptions}" >& ${BENCHMARK_LOGFILE}
+	./benchmarks/hyper-scale/scripts/perf/run_me.sh -e ${RESULTS_DIR} -n ${NAMESPACE} --cpureq=${cpu_request} --memreq=${memory_request}M >& ${BENCHMARK_LOGFILE}
 
 	RES_DIR=`ls -td -- ./benchmarks/techempower/results/*/ | head -n1 `
 	if [[ -f "${RES_DIR}/output.csv" ]]; then

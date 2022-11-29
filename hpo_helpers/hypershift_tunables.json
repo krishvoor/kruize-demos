@@ -1,19 +1,15 @@
 {
-    "experiment_name": "hypershift-<SERVICE_NAME>-demo",
+    "experiment_name": "hypershift-kubeapiserver-demo",
     "experiment_id": "kube-apiserver-123",
     "total_trials": 5,
     "parallel_trials":1,
-    "objective_function": "KUBE_APISERVER_RESPONSE+P99_POD_LATENCY",
+    "objective_function": "KUBE_APISERVER_RESPONSE",
     "value_type": "double",
     "hpo_algo_impl": "optuna_tpe",
     "direction": "minimize",
     "function_variables": [
         {
             "name": "KUBE_APISERVER_RESPONSE",
-            "value_type": "double"
-        },
-        {
-            "name": "P99_POD_LATENCY",
             "value_type": "double"
         }
     ],
@@ -30,7 +26,7 @@
             "value_type": "double",
             "upper_bound": 700,
             "lower_bound": 350,
-            "step": 10
+            "step": 25
         }
     ]
 }
