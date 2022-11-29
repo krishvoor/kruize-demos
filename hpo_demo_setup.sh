@@ -201,7 +201,7 @@ function hpo_install() {
 ## It can be customized to run for any usecase by
 ## 1. Providing the searchspace json
 ## 2. Modifying "Step 3" to run the usecase specific benchmark
-## Currently, it uses TechEmpower benchmark running in minikube for the demo.
+## Currently, it uses hyper-scale-demos benchmark running in minikube for the demo.
 function hpo_experiments() {
 
 	SEARCHSPACE_JSON="hpo_helpers/${SEARCHSPACE_FILE}"
@@ -226,7 +226,7 @@ function hpo_experiments() {
 
 	## Looping through trials of an experiment
 	echo
-	echo "Starting an experiment with ${ttrials} trials to optimize techempower"
+	echo "Starting an experiment with ${ttrials} trials to optimize hyper-scale-demos"
 	echo
 	for (( i=0 ; i<${ttrials} ; i++ ))
 	do
@@ -299,8 +299,8 @@ function hpo_start() {
 	echo "#######################################"
 	echo
 	echo "--> Starts HPOaaS"
-	echo "--> Runs techEmpower benchmark on minikube"
-	echo "--> Optimizes TechEmpower benchmark based on the provided search_space(tfb_qrh_search_space.json) using HPOaaS"
+	echo "--> Runs hyper-scale-demos benchmark on minikube"
+	echo "--> Optimizes hyper-scale-demos benchmark based on the provided hypershift_tunables(.json) using HPOaaS"
 	echo "--> search_space provides a performance objective and tunables along with ranges"
 	echo
 	prereq_check
