@@ -303,7 +303,7 @@ function hpo_start() {
 	echo "--> Optimizes hyper-scale-demos benchmark based on the provided hypershift_tunables(.json) using HPOaaS"
 	echo "--> search_space provides a performance objective and tunables along with ranges"
 	echo
-	prereq_check
+	#prereq_check
 	if [ ${hpo_restart} -eq 0 ]; then
 		clone_repos
 	fi
