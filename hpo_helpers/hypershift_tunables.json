@@ -19,14 +19,14 @@
             "value_type": "double",
             "upper_bound": 2048,
             "lower_bound": 1536,
-            "step": 50
+            "step": 100
         },
         {
             "name": "cpuRequest",
             "value_type": "double",
             "upper_bound": 700,
             "lower_bound": 350,
-            "step": 25
+            "step": 70
         }
     ]
 }

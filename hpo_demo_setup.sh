@@ -23,7 +23,7 @@ SEARCHSPACE_FILE="hypershift_tunables.json"
 # Default cluster
 CLUSTER_TYPE="native"
 # Default duration of benchmark warmup/measurement cycles in seconds.
-DURATION=60
+# DURATION=60
 PY_CMD="python3"
 LOGFILE="${PWD}/hpo.log"
 export N_TRIALS=3
@@ -250,7 +250,7 @@ function hpo_experiments() {
 		echo
 		echo "Run the benchmark for trial ${i}"
 		echo
-		BENCHMARK_OUTPUT=$(./hpo_helpers/runbenchmark.sh "hpo_config.json" "${SEARCHSPACE_JSON}" "$i" "${DURATION}")
+		BENCHMARK_OUTPUT=$(./hpo_helpers/runbenchmark.sh "hpo_config.json" "${SEARCHSPACE_JSON}" "$i")
 		echo ${BENCHMARK_OUTPUT}
 		obj_result=$(echo ${BENCHMARK_OUTPUT} | cut -d "=" -f2 | cut -d " " -f1)
 		trial_state=$(echo ${BENCHMARK_OUTPUT} | cut -d "=" -f3 | cut -d " " -f1)
